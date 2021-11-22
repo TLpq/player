@@ -1,5 +1,8 @@
 package vip.zhijiakeji.player
 
+import android.annotation.SuppressLint
+import android.app.Notification
+import android.app.PendingIntent
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -19,7 +22,9 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.RemoteViews
 import androidx.annotation.RequiresApi
+import androidx.core.app.NotificationCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.viewpager2.widget.ViewPager2
 import vip.zhijiakeji.player.databinding.ActivityMainBinding
@@ -97,7 +102,7 @@ class MainActivity : AppCompatActivity(), MediaPlayer.OnCompletionListener {
 
 
         dff()
-        getFile()
+        //getFile()
         initFragmentView()
     }
 
@@ -120,35 +125,39 @@ class MainActivity : AppCompatActivity(), MediaPlayer.OnCompletionListener {
 
     @RequiresApi(Build.VERSION_CODES.R)
     fun getFile() {
-        filesDir.parent
         val storageManager = getSystemService(Context.STORAGE_SERVICE) as StorageManager
         val novelInfoList = ArrayList<NovelInfo>()
         for (sv in storageManager.storageVolumes) {
-            sv.directory?.let {
-                val files = File(it.path).listFiles() { _, p1 -> p1 == resPath }
-                for (file in files!!) {
-                    val novelFiles = file.listFiles() { p0 -> p0.isDirectory }
+            try {
+                sv.directory?.let {
+                    val files = File(it.path).listFiles() { _, p1 -> p1 == resPath }
+                    for (file in files!!) {
+                        val novelFiles = file.listFiles() { p0 -> p0.isDirectory }
 
-                    for (novelName in novelFiles!!) {
-                        val voices = novelName.listFiles() { _, name -> name.endsWith(".mp3") }
-                        val list = ArrayList<String>()
-                        for (info in voices) {
-                            list.add(info.path)
-                        }
-                        list.sortWith { p0, p1 ->
-                            p0.compareTo(p1)
-                        }
+                        for (novelName in novelFiles!!) {
+                            val voices = novelName.listFiles() { _, name -> name.endsWith(".mp3") }
+                            val list = ArrayList<String>()
+                            for (info in voices) {
+                                list.add(info.path)
+                            }
+                            list.sortWith { p0, p1 ->
+                                p0.compareTo(p1)
+                            }
 
-                        val novelInfo = NovelInfo(novelName.path, novelName.name, "", list)
-                        novelInfoList.add(novelInfo)
+                            val novelInfo = NovelInfo(novelName.path, novelName.name, "", list)
+                            novelInfoList.add(novelInfo)
+                        }
                     }
                 }
+            } catch (e: Exception) {
+                //e.printStackTrace()
             }
         }
 
 
         viewModel.novelInfoList = novelInfoList
     }
+
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         // Inflate the menu; this adds items to the action bar if it is present.
