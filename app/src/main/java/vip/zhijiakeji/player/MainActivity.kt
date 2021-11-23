@@ -1,8 +1,6 @@
 package vip.zhijiakeji.player
 
-import android.annotation.SuppressLint
-import android.app.Notification
-import android.app.PendingIntent
+import android.app.*
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -14,18 +12,19 @@ import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
 import android.os.storage.StorageManager
-import android.util.Log
-import android.util.Log.WARN
-import androidx.appcompat.app.AppCompatActivity
-import androidx.navigation.findNavController
-import androidx.navigation.ui.AppBarConfiguration
-import androidx.navigation.ui.navigateUp
+import android.support.v4.media.session.PlaybackStateCompat
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.RemoteViews
 import androidx.annotation.RequiresApi
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.NotificationCompat
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
+import androidx.media.session.MediaButtonReceiver
+import androidx.navigation.findNavController
+import androidx.navigation.ui.AppBarConfiguration
+import androidx.navigation.ui.navigateUp
 import androidx.viewpager2.widget.ViewPager2
 import vip.zhijiakeji.player.databinding.ActivityMainBinding
 import vip.zhijiakeji.player.entiey.NovelInfo
@@ -64,6 +63,8 @@ class MainActivity : AppCompatActivity(), MediaPlayer.OnCompletionListener {
                     play(uri)
                 })
             }
+
+            initForeground(playServer)
         }
 
         override fun onServiceDisconnected(p0: ComponentName?) {
@@ -190,6 +191,68 @@ class MainActivity : AppCompatActivity(), MediaPlayer.OnCompletionListener {
         viewModel.playIndex.value = index
         viewModel.voiceName.value = viewModel.getVoiceName(uri.path)
         playServer.play(uri)
+    }
+
+    /**
+     * 创建前台任务
+     */
+    private fun initForeground(service: Service) {
+        val pendingIntent: PendingIntent =
+            Intent(this, MainActivity::class.java).let {
+                PendingIntent.getActivity(this, 0, it, 0)
+            }
+
+        val notificationLayout = RemoteViews(packageName, R.layout.notification_play)
+
+        val channelId = "default"
+        val channel =
+            NotificationChannel(channelId, channelId, NotificationManager.IMPORTANCE_DEFAULT)
+        val nm = getSystemService(Context.NOTIFICATION_SERVICE) as? NotificationManager
+        nm?.let {
+            if (it.getNotificationChannel(channelId) == null) {//没有创建
+                it.createNotificationChannel(channel)//则先创建
+            }
+        }
+
+        /*val notification: Notification = NotificationCompat.Builder(this, channelId)
+            .setSmallIcon(R.mipmap.ic_launcher_round)
+            .setPriority(NotificationCompat.PRIORITY_MAX)
+            .setCategory(NotificationCompat.CATEGORY_SERVICE)
+            .setShowWhen(false)
+            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+            .setStyle(androidx.media.app.NotificationCompat.DecoratedMediaCustomViewStyle())
+            .setContentIntent(pendingIntent)
+            .setCustomContentView(notificationLayout)
+            .build()*/
+
+        val color = ContextCompat.getColor(this, R.color.cardview_dark_background)
+
+        val notification: Notification = NotificationCompat.Builder(this, channelId)
+            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+            .setSmallIcon(R.mipmap.ic_launcher_round)
+            .setShowWhen(false)
+            /*.addAction(
+                NotificationCompat.Action(
+                    R.drawable.ic_play_start,
+                    "Pause",
+                    MediaButtonReceiver.buildMediaButtonPendingIntent(
+                        this,
+                        PlaybackStateCompat.ACTION_PLAY_PAUSE
+                    )
+                )
+            )*/
+            .addAction(R.drawable.ic_play_up, "Previous", pendingIntent)
+            .addAction(R.drawable.ic_play_start, "Pause", pendingIntent)
+            .addAction(R.drawable.ic_play_down, "Next", pendingIntent)
+            .setStyle(androidx.media.app.NotificationCompat.DecoratedMediaCustomViewStyle())
+            .setContentTitle("Wonderful music")
+            .setContentText("My Awesome Band")
+            .setSubText("My Awesome setSubText")
+            //   .setLargeIcon(albumArtBitmap)
+            .build()
+
+
+        service.startForeground(1000, notification)
     }
 
     /**
