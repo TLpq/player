@@ -1,19 +1,27 @@
 package vip.zhijiakeji.player.service
 
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.app.PendingIntent
+import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.os.IBinder
+import android.os.ResultReceiver
 import android.support.v4.media.MediaBrowserCompat
+import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
+import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import androidx.media.MediaBrowserServiceCompat
 import androidx.media.session.MediaButtonReceiver
-import vip.zhijiakeji.player.MainActivity
+import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector
 import vip.zhijiakeji.player.MediaPlayerActivity
 import vip.zhijiakeji.player.R
+import vip.zhijiakeji.player.util.PersistentStorage
 
 private const val MY_MEDIA_ROOT_ID = "media_root_id"
 private const val MY_EMPTY_MEDIA_ROOT_ID = "empty_root_id"
@@ -21,14 +29,24 @@ private const val MY_EMPTY_MEDIA_ROOT_ID = "empty_root_id"
 class MediaPlaybackService : MediaBrowserServiceCompat() {
 
     private lateinit var mediaSession: MediaSessionCompat
+    protected lateinit var mediaSessionConnector: MediaSessionConnector
+
     private lateinit var stateBuilder: PlaybackStateCompat.Builder
+
+    private lateinit var storage: PersistentStorage
 
     override fun onCreate() {
         super.onCreate()
 
+        // Build a PendingIntent that can be used to launch the UI.
+        val sessionActivityPendingIntent =
+            packageManager?.getLaunchIntentForPackage(packageName)?.let { sessionIntent ->
+                PendingIntent.getActivity(this, 0, sessionIntent, 0)
+            }
+
         // Create a MediaSessionCompat
         mediaSession = MediaSessionCompat(baseContext, "MediaPlaybackService").apply {
-
+            setSessionActivity(sessionActivityPendingIntent)
             // Enable callbacks from MediaButtons and TransportControls
             /*setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS
                     or MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS
@@ -48,6 +66,7 @@ class MediaPlaybackService : MediaBrowserServiceCompat() {
             // Set the session's token so that client activities can communicate with it.
             setSessionToken(sessionToken)
         }
+
 
         initNotification()
     }
@@ -97,7 +116,17 @@ class MediaPlaybackService : MediaBrowserServiceCompat() {
 //        val mediaMetadata = controller.metadata
 //        val description = mediaMetadata.description
 
-        val builder = NotificationCompat.Builder(this, "default").apply {
+        val channelId = "default"
+        val channel =
+            NotificationChannel(channelId, channelId, NotificationManager.IMPORTANCE_DEFAULT)
+        val nm = getSystemService(Context.NOTIFICATION_SERVICE) as? NotificationManager
+        nm?.let {
+            if (it.getNotificationChannel(channelId) == null) {//没有创建
+                it.createNotificationChannel(channel)//则先创建
+            }
+        }
+
+        val builder = NotificationCompat.Builder(this, channelId).apply {
             // Add the metadata for the currently playing track
             setContentTitle("Wonderful music")
             setContentText("My Awesome Band")
@@ -122,7 +151,7 @@ class MediaPlaybackService : MediaBrowserServiceCompat() {
             // Add an app icon and set its accent color
             // Be careful about the color
             setSmallIcon(R.mipmap.ic_launcher_round)
-            color = ContextCompat.getColor(this@MediaPlaybackService, R.color.black)
+            color = ContextCompat.getColor(this@MediaPlaybackService, R.color.teal_200)
 
             // Add a pause button
 
