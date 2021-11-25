@@ -57,7 +57,7 @@ class MediaPlayerActivity : AppCompatActivity() {
 
         // 与媒体浏览器服务连接成功
         override fun onConnected() {
-            Log.e("MediaBrowserCompat","服务连接")
+            Log.e("MediaBrowserCompat", "服务连接")
             // Get the token for the MediaSession
             mediaBrowser.sessionToken.also { token ->
 
@@ -71,6 +71,16 @@ class MediaPlayerActivity : AppCompatActivity() {
                 MediaControllerCompat.setMediaController(this@MediaPlayerActivity, mediaController)
             }
 
+            mediaBrowser.subscribe("2435", object : MediaBrowserCompat.SubscriptionCallback() {
+                override fun onChildrenLoaded(
+                    parentId: String,
+                    children: MutableList<MediaBrowserCompat.MediaItem>
+                ) {
+                    val itemsList = children.map {
+
+                    }
+                }
+            })
             // Finish building the UI
             buildTransportControls()
         }
@@ -78,13 +88,13 @@ class MediaPlayerActivity : AppCompatActivity() {
         // 与浏览器服务的连接丢失时
         override fun onConnectionSuspended() {
             // The Service has crashed. Disable transport controls until it automatically reconnects
-            Log.e("MediaBrowserCompat","服务崩溃了。禁用传输控制，直到它自动重新连接")
+            Log.e("MediaBrowserCompat", "服务崩溃了。禁用传输控制，直到它自动重新连接")
         }
 
         // 与媒体浏览器服务的连接失败
         override fun onConnectionFailed() {
             // The Service has refused our connection
-            Log.e("MediaBrowserCompat","服务拒绝了我们的连接")
+            Log.e("MediaBrowserCompat", "服务拒绝了我们的连接")
         }
     }
 

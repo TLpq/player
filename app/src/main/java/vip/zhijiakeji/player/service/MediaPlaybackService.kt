@@ -52,10 +52,7 @@ class MediaPlaybackService : MediaBrowserServiceCompat(), MediaPlayer.OnPrepared
 
             // 使用 ACTION_PLAY 设置初始 PlaybackState，以便媒体按钮可以启动播放器
             stateBuilder = PlaybackStateCompat.Builder()
-                .setActions(
-                    PlaybackStateCompat.ACTION_PLAY
-                            or PlaybackStateCompat.ACTION_PLAY_PAUSE
-                )
+                .setActions(PlaybackStateCompat.ACTION_PLAY or PlaybackStateCompat.ACTION_PLAY_PAUSE)
             setPlaybackState(stateBuilder.build())
 
             // MySessionCallback() 具有处理来自媒体控制器的回调的方法
@@ -112,7 +109,7 @@ class MediaPlaybackService : MediaBrowserServiceCompat(), MediaPlayer.OnPrepared
             // 检查传递的 parentMediaId 以查看我们所在的子菜单，并将该菜单的子项放入 mediaItems 列表中...
         }*/
 
-        // result.sendResult(mediaItems)
+        result.sendResult(mediaItems[0])
     }
 
     private fun initNotification() {
