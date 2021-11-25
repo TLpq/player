@@ -45,7 +45,7 @@
 
         <service
             android:name=".service.MusicServer"
-            android:enabled="true"
+            android:enabled="false"
             android:exported="false">
             <intent-filter>
                 <action android:name="vip.zhijiakeji.player.MediaBrowserService" />

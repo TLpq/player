@@ -38,7 +38,6 @@ class PersistentStorage private constructor(val context: Context) {
     )
 
     companion object {
-
         @Volatile
         private var instance: PersistentStorage? = null
 
@@ -100,5 +99,4 @@ private const val RECENT_SONG_SUBTITLE_KEY = "recent_song_subtitle"
 private const val RECENT_SONG_ICON_URI_KEY = "recent_song_icon_uri"
 private const val RECENT_SONG_POSITION_KEY = "recent_song_position"
 
-const val NOTIFICATION_LARGE_ICON_SIZE = 144 // px
 val MEDIA_DESCRIPTION_EXTRAS_START_PLAYBACK_POSITION_MS = "playback_start_position_ms"
