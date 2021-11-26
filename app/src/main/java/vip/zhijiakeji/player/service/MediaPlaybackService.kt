@@ -109,7 +109,7 @@ class MediaPlaybackService : MediaBrowserServiceCompat(), MediaPlayer.OnPrepared
             // 检查传递的 parentMediaId 以查看我们所在的子菜单，并将该菜单的子项放入 mediaItems 列表中...
         }*/
 
-        result.sendResult(mediaItems[0])
+        result.sendResult(null)
     }
 
     private fun initNotification() {
