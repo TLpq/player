@@ -156,7 +156,7 @@ class MainActivity : AppCompatActivity(), MediaPlayer.OnCompletionListener {
         }
 
 
-        viewModel.novelInfoList = novelInfoList
+        //viewModel.novelInfoList = novelInfoList
     }
 
 
@@ -186,11 +186,11 @@ class MainActivity : AppCompatActivity(), MediaPlayer.OnCompletionListener {
      * 播放完成回调
      */
     override fun onCompletion(p0: MediaPlayer?) {
-        val index = viewModel.playIndex.value!! + 1
+        /*val index = viewModel.playIndex.value!! + 1
         val uri = Uri.parse(viewModel.novelInfoList[0].voiceList[index])
         viewModel.playIndex.value = index
         viewModel.voiceName.value = viewModel.getVoiceName(uri.path)
-        playServer.play(uri)
+        playServer.play(uri)*/
     }
 
     /**

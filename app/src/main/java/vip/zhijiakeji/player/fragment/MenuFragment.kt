@@ -30,13 +30,7 @@ class MenuFragment : Fragment() {
                     recyclerView.layoutManager =
                         StaggeredGridLayoutManager(3, StaggeredGridLayoutManager.HORIZONTAL)
 
-                    recyclerView.adapter =
-                        object : NovelMenuRecyclerAdapter(viewModel.novelInfoList) {
-                            override fun onChoiceListener(novelName: String) {
-                                viewModel.choiceVoice.value = novelName
-                            }
-
-                        }
+                    recyclerView.adapter =NovelMenuRecyclerAdapter(viewModel.albumListLiveData.value)
                 }
             }
         }
